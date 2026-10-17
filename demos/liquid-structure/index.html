@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is liquid structure? An interactive look at g(r)</title>
+<meta name="description" content="A molecular dynamics simulation that runs in your browser and shows how the radial distribution function g(r) is built, for a gas, a liquid and a solid.">
+<link rel="stylesheet" href="../../shared/base.css">
+<link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+
+<header class="page-head">
+  <a class="back" href="../../index.html">&larr; All demos</a>
+  <p class="eyebrow">Physical chemistry · interactive</p>
+  <h1>What is <em>liquid structure</em>?</h1>
+  <p class="lede">A liquid has no lattice, yet it is far from random: every molecule sits inside a
+    shell of neighbours. The <strong>radial distribution function</strong>, <var>g</var>(<var>r</var>),
+    is how we put numbers on that. Below, a real molecular dynamics simulation is running in your browser.
+    Move the mouse over the box to set a distance, and build <var>g</var>(<var>r</var>) one step at a time.</p>
+</header>
+
+<main>
+
+<section class="card" aria-labelledby="sim-title">
+  <h2 id="sim-title" class="sr-only">Simulation</h2>
+
+  <div class="toolbar">
+    <div class="group" role="group" aria-label="Start from a preset state">
+      <span class="group-label">State</span>
+      <button class="chip" data-preset="gas"       type="button">Gas</button>
+      <button class="chip" data-preset="liquid"    type="button">Liquid</button>
+      <button class="chip" data-preset="solid"     type="button">Solid</button>
+      <button class="chip" data-preset="repulsive" type="button" title="Hard-disk-like fluid: no attraction at all">Repulsive fluid</button>
+    </div>
+    <div class="group">
+      <button class="btn" id="pause" type="button">Pause</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <figure class="panel panel-box">
+      <canvas id="box" aria-label="Simulation box showing 320 particles in two dimensions. Move the pointer to set the distance from the reference particle. Click or tap a particle to make it the reference."></canvas>
+      <figcaption>
+        <span class="legend"><i class="swatch ref"></i> reference particle</span>
+        <span class="legend"><i class="swatch line"></i> distance <var>r</var> (follows the mouse)</span>
+        <span class="legend">colour = distance from it</span>
+        <span class="legend grad" aria-hidden="true"><span>0</span><i></i><span>5 σ</span></span>
+        <span class="hint">Move over the box to set <var>r</var> · click a particle to make it the reference</span>
+      </figcaption>
+    </figure>
+
+    <figure class="panel panel-plot">
+      <div class="tabs" role="tablist" aria-label="Build up g(r) in three steps">
+        <button role="tab" id="tab-count" title="Count neighbours in rings around one particle" aria-selected="true"  data-mode="count" type="button"><b>1</b> Count</button>
+        <button role="tab" id="tab-ideal" title="Compare with an ideal gas of the same density" aria-selected="false" data-mode="ideal" type="button"><b>2</b> Compare</button>
+        <button role="tab" id="tab-g" title="Divide and average over all particles" aria-selected="false" data-mode="g"     type="button"><b>3</b> g(r)</button>
+      </div>
+      <canvas id="plot" aria-label="Plot of neighbour counts or g(r) against distance. Hover or drag across it to set the distance r, shown as a red ring in the simulation box."></canvas>
+      <div id="readout" class="readout" aria-live="off"></div>
+      <p id="caption" class="caption"></p>
+    </figure>
+  </div>
+
+  <div class="controls">
+    <label class="slider">
+      <span class="slider-top"><span>Density <var>ρσ²</var></span><output id="rho-out"></output></span>
+      <input id="rho" type="range" min="0.05" max="1.05" step="0.01">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Temperature <var>T</var> (ε/k<sub>B</sub>)</span><output id="T-out"></output></span>
+      <input id="T" type="range" min="0.15" max="2" step="0.01">
+    </label>
+    <div class="slider">
+      <span class="slider-top"><span>Interaction</span></span>
+      <div class="seg" role="radiogroup" aria-label="Interaction model">
+        <label><input type="radio" name="model" value="lj" checked><span>Lennard-Jones</span></label>
+        <label><input type="radio" name="model" value="wca"><span>Repulsive only</span></label>
+      </div>
+    </div>
+    <div class="slider">
+      <span class="slider-top"><span>Display</span></span>
+      <div class="row">
+        <label class="check"><input id="colorize" type="checkbox" checked> colour by distance</label>
+        <button class="btn small" id="pin" type="button">Pin g(r)</button>
+        <button class="btn small" id="reset-avg" type="button">Restart averaging</button>
+      </div>
+    </div>
+  </div>
+
+  <dl class="stats" aria-label="Live statistics">
+    <div><dt>Measured <var>T</var></dt><dd id="st-T">–</dd></div>
+    <div><dt>Density <var>ρσ²</var></dt><dd id="st-rho">–</dd></div>
+    <div><dt>First peak of <var>g</var></dt><dd id="st-peak">–</dd></div>
+    <div><dt>Neighbours in first shell</dt><dd id="st-coord">–</dd></div>
+  </dl>
+</section>
+
+<section class="lesson">
+  <div class="col">
+    <h2>The idea in three steps</h2>
+    <ol class="steps">
+      <li><strong>Count.</strong> Stand on one particle and count the others in thin rings around it, at distance <var>r</var>, <var>r</var>+d<var>r</var>. Do that repeatedly as the particles move.</li>
+      <li><strong>Compare.</strong> Bigger rings hold more particles even if nothing is arranged at all. An <em>ideal gas</em> of the same density would give <var>ρ</var>·2π<var>r</var>·d<var>r</var> neighbours in each ring. That is the "no structure" baseline.</li>
+      <li><strong>Divide and average.</strong> <var>g</var>(<var>r</var>) = ⟨actual count⟩ / (ideal-gas count), averaged over every particle and over time. <var>g</var> = 1 means no structure, <var>g</var> &gt; 1 means neighbours are favoured at that distance, <var>g</var> &lt; 1 means they are avoided.</li>
+    </ol>
+    <p class="note">This is a two-dimensional fluid, so rings are circles with area 2π<var>r</var>d<var>r</var>. In a real 3D liquid the shells have volume 4π<var>r</var>²d<var>r</var>; everything else is identical.</p>
+  </div>
+
+  <div class="col">
+    <h2>Try this</h2>
+    <ol class="try">
+      <li>Pick <b>Gas</b>. Why is <var>g</var>(<var>r</var>) nearly flat at 1 beyond a small bump? Why is <var>g</var> = 0 at small <var>r</var>?</li>
+      <li>Pick <b>Liquid</b>. Where is the first peak, in units of σ? What does the second peak tell you about a neighbour's neighbour? Why does <var>g</var> return to 1 at large <var>r</var>?</li>
+      <li>Hover over a peak and then a trough of <var>g</var>(<var>r</var>). Which particles in the box light up?</li>
+      <li>Pick <b>Solid</b>. How many neighbours are in the first shell? Count the peaks and compare with the liquid.</li>
+      <li>On the liquid, press <b>Pin g(r)</b> and slowly raise <var>T</var>. What happens to the peaks first?</li>
+      <li>Switch to <b>Repulsive only</b> at the same density. The attraction is gone, but is the structure? What does that say about where liquid structure comes from?</li>
+    </ol>
+  </div>
+</section>
+
+<details class="card model-note">
+  <summary>About the model</summary>
+  <p>320 particles in a periodic two-dimensional box, in reduced Lennard-Jones units (σ = ε = mass = <var>k</var><sub>B</sub> = 1).
+  Pair potential: <var>u</var>(<var>r</var>) = 4ε[(σ/<var>r</var>)<sup>12</sup> − (σ/<var>r</var>)<sup>6</sup>], cut at 2.5σ; "Repulsive only" keeps just the
+  repulsive core (Weeks–Chandler–Andersen). Integration is velocity Verlet with Δ<var>t</var> = 0.005, and a weak-coupling (Berendsen) thermostat sets the
+  temperature. For argon, σ ≈ 0.34 nm and ε/<var>k</var><sub>B</sub> ≈ 120 K, so <var>T</var> = 0.55 would be roughly 66 K.</p>
+  <p>Everything is computed in your browser; the page is plain HTML and JavaScript with no dependencies.
+  You can link straight to a state, e.g. <code>?preset=liquid&amp;view=g</code> or <code>?preset=solid&amp;T=0.4</code>
+  (options: <code>preset</code> = gas | liquid | solid | repulsive, <code>rho</code>, <code>T</code>, <code>model</code> = lj | wca, <code>view</code> = count | ideal | g),
+  which is handy for a QR code on a worksheet.</p>
+</details>
+
+</main>
+
+<footer class="foot">Built as a teaching aid for statistical and physical chemistry.</footer>
+
+<script src="md.js?v=3"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>
