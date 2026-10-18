@@ -70,3 +70,17 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
 .foot { padding-bottom: 36px; font-size: .85rem; color: var(--muted); }
 
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* hard-disk gas demos */
+.legend.grad.speed i { background: linear-gradient(90deg, #3a6ea5, #2a9d8f, #e9c43c, #f48c3c, #d62839); }
+.plot-title { margin: 0 0 8px; font-size: .95rem; font-weight: 700; }
+.demo-body #box { cursor: default; touch-action: pan-y; }
+
+/* time-reversal demo */
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.btn.primary:hover { filter: brightness(1.08); }
+.swatch.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.swatch.dot.right { background: #3a6ea5; }
+.swatch.dot.left { background: #e07a2f; }
+.swatch.ghost { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1.5px dashed var(--muted); }
+.demo-body .check { font-size: .88rem; }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kicking a gas: temperature and energy sharing</title>
+<meta name="description" content="Click an atom to add kinetic energy and watch the temperature of an isolated gas respond.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../shared/base.css">
+<link rel="stylesheet" href="../../shared/demo.css?v=4">
+</head>
+<body class="demo-body" data-hd="temperature">
+
+<header class="page-head">
+  <a class="back" href="../../index.html">&larr; All demos</a>
+  <p class="eyebrow">Physical chemistry · interactive</p>
+  <h1>Kicking a gas: <em>temperature</em> and energy sharing</h1>
+  <p class="lede">Each atom here moves in straight lines and bounces off its neighbours and the walls. Click an atom to give it a <strong>kick</strong> of extra kinetic energy, then watch the <strong>temperature</strong> and how the energy spreads out among the atoms.</p>
+</header>
+
+<main>
+<section class="card" aria-labelledby="sim-title">
+  <h2 id="sim-title" class="sr-only">Simulation</h2>
+
+  <div class="toolbar">
+    <div class="group">
+      <button class="btn" id="pause" type="button">Pause</button>
+      <button class="btn" id="reset" type="button">Restart</button>
+    </div>
+    <span class="group-label">Hard-disk atoms in a closed box · elastic collisions</span>
+  </div>
+
+  <div class="stage">
+    <figure class="panel panel-box">
+      <canvas id="box" aria-label="A closed box of hard-disk atoms. Click an atom to give it a kick."></canvas>
+      <figcaption>
+        <span class="legend">colour = kinetic energy</span>
+        <span class="legend grad speed" aria-hidden="true"><span>slow</span><i></i><span>fast</span></span>
+        <span class="hint">Click an atom to give it a kick</span>
+      </figcaption>
+    </figure>
+
+    <figure class="panel panel-plot">
+      <p class="plot-title">Temperature of the gas</p>
+      <canvas id="trace" aria-label="Temperature of the gas as a function of time"></canvas>
+      <div id="readout" class="readout" aria-live="off"></div>
+      <p class="caption">Temperature is the average kinetic energy per atom. Each red bar marks a kick.</p>
+    </figure>
+  </div>
+
+  <div class="controls">
+    <label class="slider">
+      <span class="slider-top"><span>Number of atoms <var>N</var></span><output id="n-out"></output></span>
+      <input id="n" type="range" min="10" max="150" step="1">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Kick strength (extra speed)</span><output id="kick-out"></output></span>
+      <input id="kick" type="range" min="0.5" max="8" step="0.1">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Playback speed</span><output id="speed-out"></output></span>
+      <input id="speed" type="range" min="0.25" max="3" step="0.05">
+    </label>
+  </div>
+
+  <dl class="stats" aria-label="Live statistics">
+    <div><dt>Temperature <var>T</var></dt><dd id="st-a">–</dd></div>
+    <div><dt>rms speed</dt><dd id="st-b">–</dd></div>
+    <div><dt>Kicks so far</dt><dd id="st-c">–</dd></div>
+    <div><dt>Atoms</dt><dd id="st-d">–</dd></div>
+  </dl>
+</section>
+
+<section class="lesson">
+  <div class="col">
+    <h2>What you are seeing</h2>
+    <p><strong>Colour</strong> shows each atom's kinetic energy, from blue (slow) through yellow and orange to red (fast). The trace on the right is the temperature, which is just the average kinetic energy per atom.</p>
+    <p>Because the box is closed and every collision is elastic, nothing can add or remove energy except you. A kick adds speed to one atom, along its current direction of motion, so a fast atom gains more energy than a slow one.</p>
+  </div>
+  <div class="col">
+    <h2>Try this</h2>
+    <ol class="try">
+      <li>Click one atom. By how much does <var>T</var> change? Estimate it first: how much kinetic energy was added, divided by the number of atoms?</li>
+      <li>Why is the temperature flat between kicks? Where did the kicked atom’s extra energy go? Watch its colour over the next few collisions.</li>
+      <li>Lower <var>N</var> to 20 and repeat the same kick. Is the jump in <var>T</var> bigger or smaller? Why?</li>
+      <li>Kick an atom that is already red, then a blue one. Does it matter which one you choose?</li>
+      <li>Click several atoms in a row. Does the gas ever “remember” which atoms you kicked?</li>
+    </ol>
+  </div>
+</section>
+
+<details class="card model-note">
+  <summary>About the model</summary>
+  <p>Hard disks (diameter 0.34 nm, mass 39.9 u, like argon atoms) in a closed 2D box, 28 diameters wide.
+  Collisions between atoms, and with the walls, are perfectly elastic and are solved exactly (event-driven dynamics), so kinetic energy is
+  conserved to machine precision between kicks. The simulation starts with every atom in the left half and a temperature of 300 K.
+  The speed unit <var>v</var><sub>0</sub> = √(<var>k</var><sub>B</sub><var>T</var>/<var>m</var>) is about 250 m/s at 300 K.
+  A kick adds the chosen extra speed along the atom’s current direction of motion.
+  You can link to a setup, e.g. <code>?n=20&amp;kick=6&amp;speed=2</code>.</p>
+</details>
+</main>
+
+<footer class="foot">Built as a teaching aid for statistical and physical chemistry.</footer>
+
+<script src="../../shared/harddisks.js?v=2"></script>
+<script src="../../shared/hd-demo.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filling the box: how many atoms are on the left?</title>
+<meta name="description" content="Start with every atom in the left half of a box and watch the gas spread out, then fluctuate around an even split.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../shared/base.css">
+<link rel="stylesheet" href="../../shared/demo.css?v=4">
+</head>
+<body class="demo-body" data-hd="count">
+
+<header class="page-head">
+  <a class="back" href="../../index.html">&larr; All demos</a>
+  <p class="eyebrow">Physical chemistry · interactive</p>
+  <h1>Filling the box: how many atoms are <em>on the left</em>?</h1>
+  <p class="lede">Every atom starts in the <strong>left half</strong> of the box. Nothing pushes them to the right, since they only bounce around. Watch how many are still on the left as time passes, and kick atoms to speed things up.</p>
+</header>
+
+<main>
+<section class="card" aria-labelledby="sim-title">
+  <h2 id="sim-title" class="sr-only">Simulation</h2>
+
+  <div class="toolbar">
+    <div class="group">
+      <button class="btn" id="pause" type="button">Pause</button>
+      <button class="btn" id="reset" type="button">Restart</button>
+    </div>
+    <span class="group-label">Hard-disk atoms in a closed box · elastic collisions</span>
+  </div>
+
+  <div class="stage">
+    <figure class="panel panel-box">
+      <canvas id="box" aria-label="A closed box of hard-disk atoms. Click an atom to give it a kick."></canvas>
+      <figcaption>
+        <span class="legend">colour = kinetic energy</span>
+        <span class="legend grad speed" aria-hidden="true"><span>slow</span><i></i><span>fast</span></span>
+        <span class="hint">Click an atom to give it a kick</span>
+      </figcaption>
+    </figure>
+
+    <figure class="panel panel-plot">
+      <p class="plot-title">Atoms in the left half of the box</p>
+      <canvas id="trace" aria-label="Atoms in the left half of the box as a function of time"></canvas>
+      <div id="readout" class="readout" aria-live="off"></div>
+      <p class="caption">The dashed line marks an equal split. Red bars mark kicks.</p>
+    </figure>
+  </div>
+
+  <div class="controls">
+    <label class="slider">
+      <span class="slider-top"><span>Number of atoms <var>N</var></span><output id="n-out"></output></span>
+      <input id="n" type="range" min="10" max="150" step="1">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Kick strength (extra speed)</span><output id="kick-out"></output></span>
+      <input id="kick" type="range" min="0.5" max="8" step="0.1">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Playback speed</span><output id="speed-out"></output></span>
+      <input id="speed" type="range" min="0.25" max="3" step="0.05">
+    </label>
+  </div>
+
+  <dl class="stats" aria-label="Live statistics">
+    <div><dt>Left half now</dt><dd id="st-a">–</dd></div>
+    <div><dt>Average after settling</dt><dd id="st-b">–</dd></div>
+    <div><dt>Spread (std. dev.)</dt><dd id="st-c">–</dd></div>
+    <div><dt>Kicks so far</dt><dd id="st-d">–</dd></div>
+  </dl>
+</section>
+
+<section class="lesson">
+  <div class="col">
+    <h2>What you are seeing</h2>
+    <p>The shaded half is the <strong>left half</strong>. The trace counts how many atoms are in it at each moment. There are no forces between the atoms apart from collisions, and no wall in the middle: any drift to the right is just what randomly moving atoms do.</p>
+    <p>The count falls from <var>N</var> to about <var>N</var>/2, then <em>fluctuates</em> around it. Those fluctuations are of order √<var>N</var>/2 atoms, so they matter a lot for small <var>N</var> and almost not at all for large <var>N</var>.</p>
+  </div>
+  <div class="col">
+    <h2>Try this</h2>
+    <ol class="try">
+      <li>Why does the count fall from <var>N</var> to about <var>N</var>/2? Is anything pushing atoms to the right?</li>
+      <li>After it has settled, does the count ever return to <var>N</var>? Set <var>N</var> = 10 and watch for a while, then <var>N</var> = 60. What changes, and why?</li>
+      <li>Compare the size of the fluctuations (the “Spread” statistic) with √<var>N</var>/2 for <var>N</var> = 20, 60 and 150.</li>
+      <li>Click atoms to heat the gas. Does it change how fast the box fills? Does it change the average count once things have settled?</li>
+      <li>A real gas has about 10<sup>23</sup> atoms. What does that suggest about the chance that all of them end up on one side?</li>
+    </ol>
+  </div>
+</section>
+
+<details class="card model-note">
+  <summary>About the model</summary>
+  <p>Hard disks (diameter 0.34 nm, mass 39.9 u, like argon atoms) in a closed 2D box, 28 diameters wide.
+  Collisions between atoms, and with the walls, are perfectly elastic and are solved exactly (event-driven dynamics), so kinetic energy is
+  conserved to machine precision between kicks. The simulation starts with every atom in the left half and a temperature of 300 K.
+  The speed unit <var>v</var><sub>0</sub> = √(<var>k</var><sub>B</sub><var>T</var>/<var>m</var>) is about 250 m/s at 300 K.
+  A kick adds the chosen extra speed along the atom’s current direction of motion.
+  You can link to a setup, e.g. <code>?n=20&amp;kick=6&amp;speed=2</code>.</p>
+</details>
+</main>
+
+<footer class="foot">Built as a teaching aid for statistical and physical chemistry.</footer>
+
+<script src="../../shared/harddisks.js?v=2"></script>
+<script src="../../shared/hd-demo.js?v=1"></script>
+</body>
+</html>

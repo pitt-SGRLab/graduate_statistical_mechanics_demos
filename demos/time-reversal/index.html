@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reversing time: mechanics runs backwards, entropy does not</title>
+<meta name="description" content="Press a button to reverse the velocities of every atom, run the film backwards, and watch entropy fall back to its starting value, unless rounding error gets there first.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../shared/base.css">
+<link rel="stylesheet" href="../../shared/demo.css?v=5">
+</head>
+<body class="demo-body">
+
+<header class="page-head">
+  <a class="back" href="../../index.html">&larr; All demos</a>
+  <p class="eyebrow">Physical chemistry · interactive</p>
+  <h1>Reversing time: <em>entropy</em> and the arrow of time</h1>
+  <p class="lede">The atoms start in a strip on the left, all moving right. They hit the wall, bounce back and mix. Newton's laws look the same
+    run backwards, so press <strong>Reverse time</strong> and the film should run in reverse, entropy falling until the starting
+    arrangement returns. Does it?</p>
+</header>
+
+<main>
+<section class="card" aria-labelledby="sim-title">
+  <h2 id="sim-title" class="sr-only">Simulation</h2>
+
+  <div class="toolbar">
+    <div class="group">
+      <button class="btn primary" id="reverse" type="button" title="Flip the velocity of every atom (t → −t)">⇄ Reverse time</button>
+      <button class="btn" id="pause" type="button">Pause</button>
+      <button class="btn" id="reset" type="button">Restart</button>
+    </div>
+    <label class="check"><input id="pause0" type="checkbox" checked> pause when <var>t</var> returns to 0</label>
+  </div>
+
+  <div class="stage">
+    <figure class="panel panel-box">
+      <canvas id="box" aria-label="A closed box of hard-disk atoms starting in a strip at the left. Arrows show each atom's velocity. Dashed rings mark the initial positions."></canvas>
+      <figcaption>
+        <span class="legend"><i class="swatch dot right"></i> moving right</span>
+        <span class="legend"><i class="swatch dot left"></i> moving left</span>
+        <label class="legend check"><input id="ghost" type="checkbox" checked> <i class="swatch ghost"></i> initial positions</label>
+        <span class="hint" id="dir-hint"></span>
+      </figcaption>
+    </figure>
+
+    <figure class="panel panel-plot">
+      <p class="plot-title">Entropy and simulation time, against elapsed time</p>
+      <canvas id="trace" aria-label="Top: entropy per atom against elapsed time. Bottom: simulation time t against elapsed time."></canvas>
+      <div id="readout" class="readout" aria-live="polite"></div>
+      <p class="caption">Elapsed time always runs forward. Simulation time <var>t</var> (lower plot) goes back when you reverse. Red bars mark reversals.</p>
+    </figure>
+  </div>
+
+  <div class="controls">
+    <label class="slider">
+      <span class="slider-top"><span>Number of atoms <var>N</var></span><output id="n-out"></output></span>
+      <input id="n" type="range" min="20" max="100" step="1">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Numerical precision</span><output id="digits-out"></output></span>
+      <input id="digits" type="range" min="3" max="16" step="1">
+    </label>
+    <label class="slider">
+      <span class="slider-top"><span>Playback speed</span><output id="speed-out"></output></span>
+      <input id="speed" type="range" min="0.25" max="4" step="0.05">
+    </label>
+  </div>
+
+  <dl class="stats" aria-label="Live statistics">
+    <div><dt>Simulation time <var>t</var></dt><dd id="st-t">–</dd></div>
+    <div><dt>Entropy per atom</dt><dd id="st-s">–</dd></div>
+    <div><dt>Distance from start</dt><dd id="st-d">–</dd></div>
+    <div><dt>Last return to <var>t</var> = 0</dt><dd id="st-r">–</dd></div>
+  </dl>
+</section>
+
+<section class="lesson">
+  <div class="col">
+    <h2>What you are seeing</h2>
+    <p>Every atom starts with the same velocity, in a strip at the left, a very special arrangement. Nothing much happens until the first atoms reach the right wall. Then collisions start and the beam dissolves into a gas.</p>
+    <p><strong>Entropy</strong> here is a coarse-grained count of how spread out the atoms are: the box is divided into cells in position and in velocity, and
+    <var>S</var>/<var>N</var> = −Σ <var>p</var> ln <var>p</var> over the cells, in units of <var>k</var><sub>B</sub>. It is low when the atoms occupy few cells (all in one strip, all with one velocity) and high when they are spread over many.</p>
+    <p><strong>Reverse time</strong> flips every velocity, <var>v</var> → −<var>v</var>. Because hard-disk collisions are perfectly time-symmetric, the atoms should then retrace their paths exactly, and the arrows show it. The lower plot is the simulation clock <var>t</var>, which now counts down. The entropy plot uses elapsed time, which never does.</p>
+  </div>
+  <div class="col">
+    <h2>Try this</h2>
+    <ol class="try">
+      <li>Let it run until the gas looks mixed (about 30 ps), then press <b>Reverse time</b>. What does the entropy do? What do the atoms do?</li>
+      <li>When <var>t</var> gets back to 0 the simulation pauses. Are the atoms inside their dashed rings? How large is the error?</li>
+      <li>Press <b>Resume</b> and keep going. What does the entropy do <em>after</em> <var>t</var> = 0? Is there anything in the equations that picks one direction as "forward"?</li>
+      <li>Restart and let it run for 100 ps or more before reversing. Does <var>t</var> = 0 bring the atoms home now? Why not, if the dynamics is exactly reversible?</li>
+      <li>Lower the numerical precision to 5 digits and repeat the experiment at 30 ps. Then try 10 and 12 digits. What decides how long reversal works?</li>
+      <li>Try <var>N</var> = 20 and <var>N</var> = 100. Which is easier to reverse? Which has a smoother entropy curve, and why?</li>
+      <li>The reversed state is a perfectly legal state of the gas. Why, in a real gas, do we never see it happen by itself?</li>
+    </ol>
+  </div>
+</section>
+
+<details class="card model-note">
+  <summary>About the model</summary>
+  <p>Hard disks (diameter 0.34 nm, mass 39.9 u, like argon atoms) in a closed 2D box with hard walls, so there are no periodic boundaries.
+  Collisions are elastic and are solved exactly (event-driven dynamics) in steps of 0.07 ps. The atoms start in a strip on the left, all with the same velocity,
+  1.5 <var>v</var><sub>0</sub> ≈ 375 m/s to the right. Time reversal simply sets <var>v</var> → −<var>v</var> for every atom.</p>
+  <p>The numerical precision slider rounds every coordinate and velocity to that many decimal places after each step. At the top setting (16) nothing extra is
+  rounded and the computer's own 64-bit arithmetic (about 16 significant digits) is the only source of error. Each collision magnifies tiny differences in an atom's direction, so a
+  rounding error of 10<sup>−16</sup> grows by roughly a factor of 10<sup>9</sup> every 10 time units: reversal works beautifully at first, then fails abruptly.
+  This sensitivity is the signature of chaos, and it is why a macroscopic gas never un-mixes in practice.</p>
+  <p>Entropy: 8 × 5 spatial cells and 1 <var>v</var><sub>0</sub>-wide velocity bins for <var>v</var><sub>x</sub> and <var>v</var><sub>y</sub> (from about −5 to +5 <var>v</var><sub>0</sub>);
+  the plot shows the position part, the velocity part, and their sum. With few atoms the estimate is noisy and is capped near ln of the number of occupied cells.
+  Links: <code>?n=40&amp;digits=8&amp;speed=2</code>.</p>
+</details>
+</main>
+
+<footer class="foot">Built as a teaching aid for statistical and physical chemistry.</footer>
+
+<script src="../../shared/harddisks.js?v=2"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
